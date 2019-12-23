@@ -19,6 +19,4 @@ public class RSocketRequesterConfig {
                 .rsocketStrategies(strategies)
                 .connect(clientTransport);
     }
-
-
 }

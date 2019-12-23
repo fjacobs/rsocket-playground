@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.messaging.rsocket.RSocketRequester;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -17,17 +17,16 @@ import javax.annotation.PostConstruct;
 import static com.example.requester.server.RsocketController.*;
 
 @Profile("client")
-@Service
-public class RSocketRequestResponse implements ApplicationListener<ContextRefreshedEvent> {
+@Component
+public class RSocketGeoJsonClient implements ApplicationListener<ContextRefreshedEvent> {
 
     private final Mono<RSocketRequester> requester;
     private ServerConfigProperties serverConfigProp;
 
     @Autowired
-    public RSocketRequestResponse(Mono<RSocketRequester> requester, ServerConfigProperties serverConfigProp) {
+    public RSocketGeoJsonClient(Mono<RSocketRequester> requester, ServerConfigProperties serverConfigProp) {
         this.serverConfigProp = serverConfigProp;
         this.requester = requester;
-        System.out.println("BootService constructor");
     }
 
     @Override
@@ -48,7 +47,7 @@ public class RSocketRequestResponse implements ApplicationListener<ContextRefres
                         .retrieveMono(FeatureCollection.class))
                 .doOnNext(fc -> {
                     System.out.println("Received FeatureCollection");
-                    fc.getFeatures().forEach(feature -> System.out.println("Id:" + feature.getId()));
+                    System.out.println("Size: " + fc.getFeatures().size());
                 });
     }
 
@@ -64,8 +63,3 @@ public class RSocketRequestResponse implements ApplicationListener<ContextRefres
         System.out.println("BootService initialized");
     }
 }
-
-
-
-
-//bug: wireshark only shows first feature after stream (multiple are send)

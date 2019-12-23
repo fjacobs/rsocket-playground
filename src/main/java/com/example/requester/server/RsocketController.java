@@ -1,5 +1,6 @@
 package com.example.requester.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.springframework.context.annotation.Profile;
@@ -45,8 +46,8 @@ public class RsocketController {
     @Profile(REQUEST_RESPONSE_JSON)
     @CrossOrigin
     @MessageMapping(REQUEST_RESPONSE_JSON)
-    public Mono<FeatureCollection> getFeatureCollection() {
-        return Mono.just(features);
+    public Mono<FeatureCollection> getFeatureCollection() throws JsonProcessingException {
+        return new FileRetriever().requestFeatures();
     }
 
     @Profile(REQUEST_STREAM_JSON)
