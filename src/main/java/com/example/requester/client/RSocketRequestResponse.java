@@ -1,40 +1,30 @@
-package com.example.requester;
+package com.example.requester.client;
 
 import com.example.requester.configuration.ServerConfigProperties;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.http.codec.cbor.Jackson2CborDecoder;
-import org.springframework.http.codec.cbor.Jackson2CborEncoder;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.messaging.rsocket.RSocketRequester;
-import org.springframework.messaging.rsocket.RSocketStrategies;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
-import java.net.URI;
 
-@Profile("proper")
+import static com.example.requester.server.RsocketController.*;
+
+@Profile("client")
 @Service
-public class BootService implements ApplicationListener<ContextRefreshedEvent> {
+public class RSocketRequestResponse implements ApplicationListener<ContextRefreshedEvent> {
 
     private final Mono<RSocketRequester> requester;
     private ServerConfigProperties serverConfigProp;
 
     @Autowired
-//    public BootService(@Qualifier("CustomRequester") Mono<RSocketRequester> requester) {
-    public BootService(Mono<RSocketRequester> requester, ServerConfigProperties serverConfigProp) {
+    public RSocketRequestResponse(Mono<RSocketRequester> requester, ServerConfigProperties serverConfigProp) {
         this.serverConfigProp = serverConfigProp;
         this.requester = requester;
         System.out.println("BootService constructor");
@@ -46,23 +36,26 @@ public class BootService implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     public Mono<String> sendStringRequest(Mono<RSocketRequester> rsocketRequester) {
-        return rsocketRequester.flatMap(req -> req.route("route1")
-                                                  .retrieveMono(String.class))
-                                    .doOnNext(System.out::println);
+        return rsocketRequester.flatMap(req -> req.route(REQUEST_RESPONSE_STRING)
+                .retrieveMono(String.class))
+                .doOnNext(System.out::println);
     }
 
     public Mono<FeatureCollection> sendFcRespReq(Mono<RSocketRequester> rsocketRequester) {
 
         return rsocketRequester.flatMap(req ->
-                req.route("route2")
-                   .retrieveMono(FeatureCollection.class))
-                   .doOnNext(fc-> System.out.println(fc.getFeatures().get(0).getId()));
+                req.route(REQUEST_RESPONSE_JSON)
+                        .retrieveMono(FeatureCollection.class))
+                .doOnNext(fc -> {
+                    System.out.println("Received FeatureCollection");
+                    fc.getFeatures().forEach(feature -> System.out.println("Id:" + feature.getId()));
+                });
     }
 
     public Flux<Feature> sendFcStreamReq(Mono<RSocketRequester> rsocketRequester) {
 
         return rsocketRequester
-                .flatMapMany(req->req.route("route3").retrieveFlux(Feature.class))
+                .flatMapMany(req -> req.route(REQUEST_STREAM_JSON).retrieveFlux(Feature.class))
                 .doOnNext(feature -> System.out.println(feature.getId()));
     }
 
