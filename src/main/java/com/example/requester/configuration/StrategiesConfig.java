@@ -31,4 +31,13 @@ public class StrategiesConfig {
                 .decoders(decoders -> decoders.add(new Jackson2CborDecoder()))
                 .build();
     }
+
+
+    @Profile("bytebuffer")
+    @Bean
+    public RSocketStrategies noSerialization() {
+
+        return RSocketStrategies.builder()
+                .build();
+    }
 }

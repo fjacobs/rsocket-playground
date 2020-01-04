@@ -53,8 +53,8 @@ public class RsocketController {
     @Profile(REQUEST_STREAM_JSON)
     @CrossOrigin
     @MessageMapping(REQUEST_STREAM_JSON)
-    public Flux<Feature> streamFeatures(RSocketRequester rSocketRequest) {
-        return Flux.fromIterable(features);
+    public Flux<Feature> streamFeatures(RSocketRequester rSocketRequest) throws JsonProcessingException {
+        return Flux.fromIterable(new FileRetriever().requestFeatures().block().getFeatures());
     }
 
 }

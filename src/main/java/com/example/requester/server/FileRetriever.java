@@ -22,7 +22,7 @@ public class FileRetriever {
 
     public Mono<FeatureCollection> requestFeatures() throws JsonProcessingException {
 
-        Mono<FeatureCollection> fc = Mono.just(new ObjectMapper().readValue(getString("fc1.geojson"), FeatureCollection.class));
+        Mono<FeatureCollection> fc = Mono.just(new ObjectMapper().readValue(getString("green.geojson"), FeatureCollection.class));
 
         Assert.notNull(fc, "error reading file");
 
@@ -52,5 +52,4 @@ public class FileRetriever {
         }
         return featureCollection;
     }
-
 }

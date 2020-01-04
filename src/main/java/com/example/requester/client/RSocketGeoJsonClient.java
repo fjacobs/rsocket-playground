@@ -31,7 +31,9 @@ public class RSocketGeoJsonClient implements ApplicationListener<ContextRefreshe
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        sendFcRespReq(requester).block();
+      sendFcRespReq(requester).block();
+        sendStringRequest(requester).block();
+       sendFcStreamReq(requester).blockLast();
     }
 
     public Mono<String> sendStringRequest(Mono<RSocketRequester> rsocketRequester) {
